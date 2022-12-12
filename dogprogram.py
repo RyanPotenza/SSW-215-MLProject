@@ -1,15 +1,33 @@
 import tensorflow as tf
-import tensorflow_datasets as tfds
 
-import numpy as np
+from tensorflow.keras import datasets, layers, models
 import matplotlib.pyplot as plt
+#  LOAD AND SPLIT DATASET
+(train_images, train_labels), (test_images, test_labels) = datasets.cifar10.load_data()
 
-dataset, dsinfo = tfds.load('stanford_dogs', with_info=True)
-label_name = dsinfo.features['label'].int2str
+# Normalize pixel values to be between 0 and 1
+train_images, test_images = train_images / 255.0, test_images / 255.0
 
-for i in dataset['train'].take(10):
-    plt.figure()
-    plt.imshow(i['image'])
-    plt.title(label_name(i['label']))
-    
+class_names = ['airplane', 'automobile', 'bird', 'cat', 'deer',
+               'dog', 'frog', 'horse', 'ship', 'truck']
+model = models.Sequential()
+model.add(layers.Conv2D(32, (3, 3), activation='relu', input_shape=(32, 32, 3)))
+model.add(layers.MaxPooling2D((2, 2)))
+model.add(layers.Conv2D(64, (3, 3), activation='relu'))
+model.add(layers.MaxPooling2D((2, 2)))
+model.add(layers.Conv2D(64, (3, 3), activation='relu'))
+
+model.add(layers.Flatten())
+model.add(layers.Dense(64, activation='relu'))
+model.add(layers.Dense(10))
+
+model.compile(optimizer='adam',
+              loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True),
+              metrics=['accuracy'])
+
+history = model.fit(train_images, train_labels, epochs=4, 
+                    validation_data=(test_images, test_labels))
+
+test_loss, test_acc = model.evaluate(test_images,  test_labels, verbose=2)
+print(test_acc)
     
