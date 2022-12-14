@@ -1,6 +1,4 @@
-import os
 import numpy as np
-import matplotlib.pyplot as plt
 import tensorflow as tf
 keras = tf.keras
 
@@ -46,10 +44,11 @@ base_model = tf.keras.applications.MobileNetV2(input_shape=IMG_SHAPE,
 # Freeze base layer so we don't re-train the pre-trained model
 base_model.trainable = False 
 
+# Feature maps capture the result of applying filters to input
 # Flattens the base_model 5x5 feature maps into single 1280 element vector 
 global_average_layer = tf.keras.layers.GlobalAveragePooling2D()
 
-# Define prediction layer, a single dense neuron 
+# Define classification layer, a single dense neuron 
 prediction_layer = keras.layers.Dense(1)
 
 #Combine all layers into final model
@@ -59,11 +58,17 @@ model = tf.keras.Sequential([
   prediction_layer
 ])
 
+# Learning rate is the rate at which weights and biases change with each update in training
 base_learning_rate = 0.0001
+
+#Compile the model, we define the loss function which calculates the losses in our model, 
+# the optimizer which reduces the loss, and the metrics which is used to find the accuracy of our model.
 model.compile(optimizer=tf.keras.optimizers.RMSprop(learning_rate=base_learning_rate),
               loss=tf.keras.losses.BinaryCrossentropy(from_logits=True),
               metrics=['accuracy'])
 
+# The number of epochs refers to how many times the model iterates through the entire dataset. Having too few epochs may lead to the model not being trained enough
+# But too many epochs may lead to the model being overtrained, able to predict every image from the dataset, but not new images.
 initial_epochs = 3
 validation_steps=20
 
