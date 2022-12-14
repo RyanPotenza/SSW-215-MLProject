@@ -20,6 +20,3 @@ for local_path in os.listdir("TestingImages"):
     print(f"{local_path} is an image of a dog")
   else:
     print(f"{local_path} is an image of a cat")
-
-
-
